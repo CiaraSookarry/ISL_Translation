@@ -12,6 +12,7 @@ import cv2
 import math
 import mediapipe as mp
 import numpy as np
+import re
 
 from split_sets import X_train, X_test, y_train, y_test
 
@@ -46,13 +47,14 @@ def create_batches(list_name, batch_size):
 
 # Write landmark values to CSV file
 def write_csv(data):
-    header = ['IndexX', 'IndexY', 'label']
+    header = ['WristX', 'WristY', 'ThumbCMCX', 'ThumbCMCY', 'ThumbMCPX', 'ThumbMCPY', 'ThumbIPX', 'ThumbIPY', 'ThumbTIPX', 'ThumbTIPY', 'IndexMCPX', 'IndexMCPY', 'IndexPIPX', 'IndexPIPY', 'IndexDIPX', 'IndexDIPY', 'IndexTIPX', 'IndexTIPY', 'MiddleMCPX', 'MiddleMCPY', 'MiddlePIPX', 'MiddlePIPY', 'MiddleDIPX', 'MiddleDIPY', 'MiddleTIPX', 'MiddleTIPY', 'RingMCPX', 'RingMCPY', 'RingPIPX', 'RingPIPY', 'RingDIPX', 'RingDIPY', 'RingTIPX', 'RingTIPY', 'PinkyMCPX', 'PinkyMCPY', 'PinkyPIPX', 'PinkyPIPY', 'PinkyDIPX', 'PinkyDIPY', 'PinkyTIPX', 'PinkyTIPY', 'label']
     
     with open('landmarks.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(header)
         print(data)
         writer.writerows(data)
+
 ############################
 # Main code
 ############################
@@ -61,12 +63,14 @@ def write_csv(data):
 batches = create_batches(X_test[:5], 5)
 for sets in batches:
     images = {name: cv2.imread(name) for name in sets}
-    print("Images read")
+    # print("Images read")
+    '''
     # Preview the images.
     # for name, image in images.items():
         # print(name)       
         # resize_and_show(image, 0)
     # print("Images resized")
+    '''
     # Run MediaPipe Hands.
     no_marks = 0
     marks = 0
@@ -93,14 +97,22 @@ for sets in batches:
                     print(f'Hand landmarks of {name}:')
                     image_hight, image_width, _ = image.shape
                     annotated_image = cv2.flip(image.copy(), 1)
+                    
                     for hand_landmarks in results.multi_hand_landmarks:
-                        # print(results.multi_hand_landmarks)
+                        # print(hand_landmarks)
                         # Create array to write points to CSV
                         landmarks = list()
-
-                        landmarks.append(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x)
-                        landmarks.append(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y)
-                        landmarks.append('A')
+                        for i in range(21):
+                            # Append x and y finger tip landmarks 
+                            landmarks.append(hand_landmarks.landmark[i].x)
+                            landmarks.append(hand_landmarks.landmark[i].y)
+                        
+                        # Extract label from filename and append to landmarks
+                        m = re.search('Frames_(.+?)/', name)
+                        if m:
+                            found = m.group(1)
+                            # print(found)
+                            landmarks.append(found)
 
                         csv_data.append(landmarks)                       
                         '''  
@@ -110,7 +122,7 @@ for sets in batches:
                                         f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_hight})'
                         )
                         
-                        
+                                            
                         mp_drawing.draw_landmarks(
                                         annotated_image,
                                         hand_landmarks,
@@ -118,7 +130,8 @@ for sets in batches:
                                         mp_drawing_styles.get_default_hand_landmarks_style(),
                                         mp_drawing_styles.get_default_hand_connections_style())
                     resize_and_show(cv2.flip(annotated_image, 1), 1)
-                    '''
+                        '''
+                    
     print("Landmarks Applied")
     write_csv(csv_data)
     #print(f"CSV Landmarks: {csv_data}")
