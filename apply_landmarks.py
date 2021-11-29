@@ -52,7 +52,7 @@ def write_csv(data):
     with open('landmarks.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(header)
-        print(data)
+        # print(data)
         writer.writerows(data)
 
 ############################
@@ -60,30 +60,32 @@ def write_csv(data):
 ############################
 
 # Read images with OpenCV.
-batches = create_batches(X_test[:5], 5)
+batches = create_batches(X_test[:4], 2)
+csv_data = list()
+# landmarks = list()
+total_marks = 0
+# for each batch of pre-determined size
+# read image and put in images var
 for sets in batches:
     images = {name: cv2.imread(name) for name in sets}
     # print("Images read")
-    '''
-    # Preview the images.
-    # for name, image in images.items():
-        # print(name)       
-        # resize_and_show(image, 0)
-    # print("Images resized")
-    '''
+    
     # Run MediaPipe Hands.
     no_marks = 0
     marks = 0
-    csv_data = list()
+    # csv_data = list()
+    #landmarks = list()
     with mp_hands.Hands(
                     static_image_mode=True,
                     max_num_hands=1,
                     model_complexity=0,
                     min_detection_confidence=0.05) as hands:
+        # for each image in images var
         for name, image in images.items():
                     # Convert the BGR image to RGB, flip the image around y-axis for correct 
                     # handedness output and process it with MediaPipe Hands.
                     results = hands.process(cv2.flip(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), 1))
+                    landmarks = list()
                     '''
                     # Print handedness (left v.s. right hand).
                     print(f'Handedness of {name}:')
@@ -94,14 +96,18 @@ for sets in batches:
                         continue
                     # Draw hand landmarks of each hand.
                     marks += 1
+                    total_marks += 1
                     print(f'Hand landmarks of {name}:')
                     image_hight, image_width, _ = image.shape
                     annotated_image = cv2.flip(image.copy(), 1)
                     
+                    # landmarks = list()
+                    # for each set of all landmarks on one hand
                     for hand_landmarks in results.multi_hand_landmarks:
                         # print(hand_landmarks)
                         # Create array to write points to CSV
-                        landmarks = list()
+                        # ndmarks = list()
+                        # for each landmark point on a and
                         for i in range(21):
                             # Append x and y finger tip landmarks 
                             landmarks.append(hand_landmarks.landmark[i].x)
@@ -115,14 +121,7 @@ for sets in batches:
                             landmarks.append(found)
 
                         csv_data.append(landmarks)                       
-                        '''  
-                        print(
-                                        f'Index finger tip coordinate: (',
-                                        f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * image_width}, '
-                                        f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_hight})'
-                        )
-                        
-                                            
+                        '''                                          
                         mp_drawing.draw_landmarks(
                                         annotated_image,
                                         hand_landmarks,
@@ -131,9 +130,9 @@ for sets in batches:
                                         mp_drawing_styles.get_default_hand_connections_style())
                     resize_and_show(cv2.flip(annotated_image, 1), 1)
                         '''
-                    
+   # csv_data.append(landmarks)               
     print("Landmarks Applied")
-    write_csv(csv_data)
+    # write_csv(csv_data)
     #print(f"CSV Landmarks: {csv_data}")
     # Print number of images to which landmarks 
     # couldn't be applied
@@ -161,3 +160,6 @@ for sets in batches:
         for i in range(0, len(list_name), batch_size):
             yield list_name[i:i + batch_size]
     '''
+#csv_data.append(landmarks)
+write_csv(csv_data)
+print(total_marks)
