@@ -49,7 +49,7 @@ def create_batches(list_name, batch_size):
 def write_csv(data):
     header = ['WristX', 'WristY', 'ThumbCMCX', 'ThumbCMCY', 'ThumbMCPX', 'ThumbMCPY', 'ThumbIPX', 'ThumbIPY', 'ThumbTIPX', 'ThumbTIPY', 'IndexMCPX', 'IndexMCPY', 'IndexPIPX', 'IndexPIPY', 'IndexDIPX', 'IndexDIPY', 'IndexTIPX', 'IndexTIPY', 'MiddleMCPX', 'MiddleMCPY', 'MiddlePIPX', 'MiddlePIPY', 'MiddleDIPX', 'MiddleDIPY', 'MiddleTIPX', 'MiddleTIPY', 'RingMCPX', 'RingMCPY', 'RingPIPX', 'RingPIPY', 'RingDIPX', 'RingDIPY', 'RingTIPX', 'RingTIPY', 'PinkyMCPX', 'PinkyMCPY', 'PinkyPIPX', 'PinkyPIPY', 'PinkyDIPX', 'PinkyDIPY', 'PinkyTIPX', 'PinkyTIPY', 'label']
     
-    with open('landmarks.csv', 'w', newline='') as f:
+    with open('testing_landmarks.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(header)
         # print(data)
@@ -60,7 +60,7 @@ def write_csv(data):
 ############################
 
 # Read images with OpenCV.
-batches = create_batches(X_test[:4], 2)
+batches = create_batches(X_test, 3500)
 csv_data = list()
 # landmarks = list()
 total_marks = 0
