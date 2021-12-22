@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
 def prepareData():
@@ -31,7 +32,7 @@ def prepareData():
 def main():
     X_train, X_test, y_train, y_test = prepareData()
 
-    svclassifier = SVC(kernel='linear')
+    svclassifier = SVC(C=4, kernel='rbf', gamma=4)
     svclassifier.fit(X_train, y_train)
     # Predict
     y_pred = svclassifier.predict(X_test)
