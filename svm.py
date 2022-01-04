@@ -32,14 +32,29 @@ def prepareData():
 def main():
     X_train, X_test, y_train, y_test = prepareData()
 
-    svclassifier = SVC(C=4, kernel='rbf', gamma=4)
-    svclassifier.fit(X_train, y_train)
-    # Predict
-    y_pred = svclassifier.predict(X_test)
+    tuned_parameters = [
+    {"kernel": ["linear"], "C": [1, 10, 100, 1000]},
+    {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
+    ]   
 
-    # Evaluate
-    print(confusion_matrix(y_test,y_pred))
-    print(classification_report(y_test,y_pred))
+    scores = ["precision", "recall"]
+
+    for score in scores:
+        print("# Tuning hyper-parameters for %s\n" % score)
+        
+        svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
+
+        #svclassifier = SVC(C=100, kernel='linear')
+        svclassifier.fit(X_train, y_train)
+
+        # Predict
+        y_pred = svclassifier.predict(X_test)
+
+        # Evaluate
+        # print(confusion_matrix(y_test,y_pred))
+        print(classification_report(y_test,y_pred))
+        print("Best parameters set found on development set:")
+        print(svclassifier.best_params_)
 
 if __name__ == '__main__':
     main()
