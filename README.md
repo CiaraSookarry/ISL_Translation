@@ -69,5 +69,5 @@ With this method candidate hyperparameters are specified in a grid and `GridSear
 37     {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
 38     {"kernel": ["sigmoid"], "gamma": ["auto", "scale", 1e-3], "C": [10, 100, 1000]},
 39     ]
-
+```
 #### Bayesian Hyperparamter Optimization
