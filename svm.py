@@ -13,6 +13,7 @@ import pandas as pd
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
+from skopt import BayesSearchCV
 
 def prepareData():
     # import training and testing CSV data
@@ -31,20 +32,32 @@ def prepareData():
 
 def main():
     X_train, X_test, y_train, y_test = prepareData()
-
+    '''
     tuned_parameters = [
     {"kernel": ["linear"], "C": [1, 10, 100, 1000]},
     {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
+    {"kernel": ["sigmoid"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
     ]   
-
-    scores = ["precision", "recall"]
+    '''
+    scores = ["recall"] #["precision"] #, "recall"]
 
     for score in scores:
         print("# Tuning hyper-parameters for %s\n" % score)
         
-        svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
+        svclassifier = BayesSearchCV(
+            SVC(), 
+            {
+                'C': (1e-6, 1e+6, 'log-uniform'),
+                'gamma': (1e-6, 1e+1, 'log-uniform'),
+                'kernel': (['linear', 'sigmoid', 'rbf']),
+            },
+            scoring="%s_weighted" % score,
+            random_state=42,
+            verbose=3
+        )
 
-        #svclassifier = SVC(C=100, kernel='linear')
+        # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
+        # svclassifier = SVC(C=100, kernel='linear')
         svclassifier.fit(X_train, y_train)
 
         # Predict
