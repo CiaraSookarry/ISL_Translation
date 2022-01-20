@@ -33,7 +33,7 @@ def hyperopt_train_test(params):
 
 space4svm = {
     'C': hp.uniform('C', 0, 20),
-    'kernel': hp.choice('kernel', ['linear', 'sigmoid', 'rbf']), #, 'poly']),
+    'kernel': hp.choice('kernel', ['linear', 'sigmoid', 'rbf']),
     'gamma': hp.uniform('gamma', 0, 20),
     #'scale': hp.choice('scale', [0, 1]),
     #'normalize': hp.choice('normalize', [0, 1])

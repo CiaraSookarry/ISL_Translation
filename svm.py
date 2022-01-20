@@ -9,6 +9,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pickle
 
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV
@@ -38,7 +39,7 @@ def main():
     {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
     {"kernel": ["sigmoid"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
     ]   
-    '''
+    
     scores = ["recall"] #["precision"] #, "recall"]
 
     for score in scores:
@@ -55,19 +56,23 @@ def main():
             random_state=42,
             verbose=3
         )
+        '''
+    # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
+    svclassifier = SVC(C=100, kernel='linear')
+    svclassifier.fit(X_train, y_train)
 
-        # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
-        # svclassifier = SVC(C=100, kernel='linear')
-        svclassifier.fit(X_train, y_train)
+    # Save model for later use with Pickle
+    filename = 'svm_model.sav'
+    pickle.dump(svclassifier, open(filename, 'wb'))
 
-        # Predict
-        y_pred = svclassifier.predict(X_test)
+    # Predict
+    y_pred = svclassifier.predict(X_test)
 
-        # Evaluate
-        # print(confusion_matrix(y_test,y_pred))
-        print(classification_report(y_test,y_pred))
-        print("Best parameters set found on development set:")
-        print(svclassifier.best_params_)
+    # Evaluate
+    # print(confusion_matrix(y_test,y_pred))
+    print(classification_report(y_test,y_pred))
+    # print("Best parameters set found on development set:")
+    # print(svclassifier.best_params_)
 
 if __name__ == '__main__':
     main()
