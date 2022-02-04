@@ -9,9 +9,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import time
 
+from scipy.stats import uniform
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.svm import SVC
 from skopt import BayesSearchCV
 
@@ -32,18 +34,24 @@ def prepareData():
 
 def main():
     X_train, X_test, y_train, y_test = prepareData()
-    '''
+    '''    
     tuned_parameters = [
-    {"kernel": ["linear"], "C": [1, 10, 100, 1000]},
-    {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
-    {"kernel": ["sigmoid"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
+    {"kernel": ["linear"], "C": [1, 10, 100]},
+    {"kernel": ["rbf"], "gamma": [1e-3, 1, 1e3], "C": [1, 10, 100]},
+    {"kernel": ["sigmoid"], "gamma": [1e-3, 1, 1e3], "C": [1, 10, 100]},
     ]   
     '''
-    scores = ["recall"] #["precision"] #, "recall"]
+    distributions = dict(
+    C=uniform(loc=1, scale=99), 
+    kernel=['linear', 'rbf', 'sigmoid'], 
+    gamma=uniform(loc=1e-3, scale=1e3)
+    )
+
+    scores = ["recall"] #, "precision"]
 
     for score in scores:
         print("# Tuning hyper-parameters for %s\n" % score)
-        
+        '''
         svclassifier = BayesSearchCV(
             SVC(), 
             {
@@ -55,9 +63,12 @@ def main():
             random_state=42,
             verbose=3
         )
+        '''
+        start_time = time.time()
 
         # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
         # svclassifier = SVC(C=100, kernel='linear')
+        svclassifier = RandomizedSearchCV(SVC(), distributions, random_state=0, n_iter=5, verbose=3)
         svclassifier.fit(X_train, y_train)
 
         # Predict
@@ -68,6 +79,8 @@ def main():
         print(classification_report(y_test,y_pred))
         print("Best parameters set found on development set:")
         print(svclassifier.best_params_)
+
+        print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
