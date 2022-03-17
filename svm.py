@@ -11,8 +11,9 @@ import numpy as np
 import pandas as pd
 import pickle
 
+from scipy.stats import uniform
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.svm import SVC
 from skopt import BayesSearchCV
 
@@ -33,32 +34,25 @@ def prepareData():
 
 def main():
     X_train, X_test, y_train, y_test = prepareData()
+
+    param_distributions = dict(
+        kernel    = ['linear', 'rbf', 'sigmoid'],
+        C         = uniform(loc=1, scale=99),
+        gamma     = uniform(loc=1e-3, scale=1e3),
+        coef0     = uniform(loc=-10, scale=20)
+    )
+
     '''
     tuned_parameters = [
-    {"kernel": ["linear"], "C": [1, 10, 100, 1000]},
-    {"kernel": ["rbf"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
-    {"kernel": ["sigmoid"], "gamma": [1e-3, 1e-4], "C": [10, 100, 1000]},
+    {"kernel": ["linear"],  "C": [1, 10, 100]},
+    {"kernel": ["rbf"],     "C": [1, 10, 100], "gamma": [1e-3, 1,  1e3]},
+    {"kernel": ["sigmoid"], "C": [1, 10, 100], "gamma": [1e-3, 1,  1e3], "coef0": [-1.0, 0.0, 1.0]},
     ]   
+    '''
     
-    scores = ["recall"] #["precision"] #, "recall"]
-
-    for score in scores:
-        print("# Tuning hyper-parameters for %s\n" % score)
-        
-        svclassifier = BayesSearchCV(
-            SVC(), 
-            {
-                'C': (1e-6, 1e+6, 'log-uniform'),
-                'gamma': (1e-6, 1e+1, 'log-uniform'),
-                'kernel': (['linear', 'sigmoid', 'rbf']),
-            },
-            scoring="%s_weighted" % score,
-            random_state=42,
-            verbose=3
-        )
-        '''
-    # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="%s_weighted" % score, cv=5)        
-    svclassifier = SVC(C=100, kernel='linear')
+    # svclassifier = RandomizedSearchCV(SVC(), param_distributions, random_state=0, n_iter=50, verbose=3)
+    # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="recall_weighted", cv=5)        
+    svclassifier = SVC(kernel='rbf', C=53.98, gamma=40.18)
     svclassifier.fit(X_train, y_train)
 
     # Save model for later use with Pickle
@@ -71,8 +65,8 @@ def main():
     # Evaluate
     # print(confusion_matrix(y_test,y_pred))
     print(classification_report(y_test,y_pred))
-    # print("Best parameters set found on development set:")
-    # print(svclassifier.best_params_)
+    print("Best parameters set found:")
+    print(svclassifier.best_params_)
 
 if __name__ == '__main__':
     main()

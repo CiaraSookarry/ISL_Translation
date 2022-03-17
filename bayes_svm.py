@@ -8,7 +8,7 @@ from sklearn import preprocessing
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
-print("It's landmark time!!!")
+# print("It's landmark time!!!")
 train = pd.read_csv("training_landmarks.csv")
 X = train.drop('label', axis=1)
 y = train['label']
@@ -29,14 +29,13 @@ def hyperopt_train_test(params):
     '''
     clf = SVC(**params)
     
-    return cross_val_score(clf, X_, y, verbose=3).mean()
+    return cross_val_score(clf, X_, y).mean()
 
 space4svm = {
-    'C': hp.uniform('C', 0, 20),
     'kernel': hp.choice('kernel', ['linear', 'sigmoid', 'rbf']),
-    'gamma': hp.uniform('gamma', 0, 20),
-    #'scale': hp.choice('scale', [0, 1]),
-    #'normalize': hp.choice('normalize', [0, 1])
+    'C': hp.uniform('C', 1, 100),
+    'gamma': hp.uniform('gamma', 1e-3, 1e3),
+    'coef0': hp.uniform('coef0', -10, 10)
 }
 
 def f(params):
@@ -44,11 +43,12 @@ def f(params):
     return {'loss': -acc, 'status': STATUS_OK}
 
 trials = Trials()
-best = fmin(f, space4svm, algo=tpe.suggest, max_evals=100, trials=trials)
+best = fmin(f, space4svm, algo=tpe.suggest, max_evals=50, trials=trials)
 print('best:')
 print(space_eval(space4svm, best))
 
-parameters = ['C', 'kernel', 'gamma'] #, 'scale', 'normalize']
+# Plot hyperparameter values
+parameters = ['kernel', 'C', 'gamma', 'coef0'] 
 cols = len(parameters)
 
 f, axes = plt.subplots(nrows=1, ncols=cols, figsize=(20,5))

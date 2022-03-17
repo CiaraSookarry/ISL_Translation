@@ -1,8 +1,6 @@
 # split_sets.py
 #
-# Code to split each letter into training and testing sets
-# then combine all training sets together and all testing 
-# sets together to create overall training and testing sets
+# Code to split set of over 48,000 images into training and testing sets
 # 
 # Author: Ciara Sookarry
 # Date: 7 Nov 2021
@@ -72,8 +70,8 @@ random.shuffle(y_test, getShuffleVar)
 ################################################
 # Check that lists have been shuffled properly
 #################################################
-# print(coloured("Samples of shuffled X and y test sets", 'cyan'))
-# print(f"{y_test[:10]}\n")
-# print(f"{X_test[:10]}\n")
+print(coloured("Samples of shuffled X and y test sets", 'cyan'))
+print(f"{y_test[:10]}\n")
+print(f"{X_test[:10]}\n")
 
 # print(y_test)
