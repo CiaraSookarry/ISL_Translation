@@ -3,15 +3,22 @@
 # Implementation of an SVM performing
 # classification on hand landmarks
 #
+# Grid Search and Random Search implemented here as
+# well was simply specifying hyperparameter values.
+#
 # Author: Ciara Sookarry
 # Date: 30 November 2021
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pickle
 
+from scipy.stats import uniform
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.svm import SVC
+from skopt import BayesSearchCV
 
 def prepareData():
     # import training and testing CSV data
@@ -31,14 +38,48 @@ def prepareData():
 def main():
     X_train, X_test, y_train, y_test = prepareData()
 
-    svclassifier = SVC(kernel='linear')
+    # Hyperparameter distribution used for Random Search
+    '''
+    param_distributions = dict(
+        kernel    = ['linear', 'rbf', 'sigmoid'],
+        C         = uniform(loc=1, scale=99),
+        gamma     = uniform(loc=1e-3, scale=1e3),
+        coef0     = uniform(loc=-10, scale=20)
+    )
+    '''
+    # Hyperparameter grid specifying values to try with Grid Search
+    '''
+    tuned_parameters = [
+    {"kernel": ["linear"],  "C": [1, 10, 100]},
+    {"kernel": ["rbf"],     "C": [1, 10, 100], "gamma": [1e-3, 1,  1e3]},
+    {"kernel": ["sigmoid"], "C": [1, 10, 100], "gamma": [1e-3, 1,  1e3], "coef0": [-1.0, 0.0, 1.0]},
+    ]   
+    '''
+    
+    # Random Search
+    # svclassifier = RandomizedSearchCV(SVC(), param_distributions, random_state=0, n_iter=50, verbose=3)
+
+    # Grid Search
+    # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="recall_weighted", cv=5)
+
+    # SVM with optimal parameters found via Bayes Search
+    svclassifier = SVC(kernel='rbf', C=53.98, gamma=40.18)
     svclassifier.fit(X_train, y_train)
+
+    # Save model for later use with Pickle
+    filename = 'svm_model.sav'
+    pickle.dump(svclassifier, open(filename, 'wb'))
+
     # Predict
     y_pred = svclassifier.predict(X_test)
 
     # Evaluate
-    print(confusion_matrix(y_test,y_pred))
+    # print(confusion_matrix(y_test,y_pred))
     print(classification_report(y_test,y_pred))
+    
+    # Output best parameters after Grid/Random Search
+    # print("Best parameters set found:")
+    # print(svclassifier.best_params_)
 
 if __name__ == '__main__':
     main()
