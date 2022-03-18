@@ -1,4 +1,7 @@
 # bayes_svm.py
+#
+# Implements Bayesian Hyperparameter Optimization
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,7 +11,7 @@ from sklearn import preprocessing
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
-# print("It's landmark time!!!")
+
 train = pd.read_csv("training_landmarks.csv")
 X = train.drop('label', axis=1)
 y = train['label']
@@ -16,17 +19,7 @@ y = train['label']
 
 def hyperopt_train_test(params):
     X_ = X[:]    
-    '''
-    if 'normalize' in params:
-        if params['normalize'] == 1:
-            X_ = preprocessing.normalize(X_)
-        del params['normalize']    
-   
-    if 'scale' in params:
-        if params['scale'] == 1:
-            X_ = preprocessing.scale(X_)
-        del params['scale']    
-    '''
+    
     clf = SVC(**params)
     
     return cross_val_score(clf, X_, y).mean()

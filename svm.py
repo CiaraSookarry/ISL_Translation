@@ -3,6 +3,9 @@
 # Implementation of an SVM performing
 # classification on hand landmarks
 #
+# Grid Search and Random Search implemented here as
+# well was simply specifying hyperparameter values.
+#
 # Author: Ciara Sookarry
 # Date: 30 November 2021
 
@@ -35,13 +38,16 @@ def prepareData():
 def main():
     X_train, X_test, y_train, y_test = prepareData()
 
+    # Hyperparameter distribution used for Random Search
+    '''
     param_distributions = dict(
         kernel    = ['linear', 'rbf', 'sigmoid'],
         C         = uniform(loc=1, scale=99),
         gamma     = uniform(loc=1e-3, scale=1e3),
         coef0     = uniform(loc=-10, scale=20)
     )
-
+    '''
+    # Hyperparameter grid specifying values to try with Grid Search
     '''
     tuned_parameters = [
     {"kernel": ["linear"],  "C": [1, 10, 100]},
@@ -50,8 +56,13 @@ def main():
     ]   
     '''
     
+    # Random Search
     # svclassifier = RandomizedSearchCV(SVC(), param_distributions, random_state=0, n_iter=50, verbose=3)
-    # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="recall_weighted", cv=5)        
+
+    # Grid Search
+    # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="recall_weighted", cv=5)
+
+    # SVM with optimal parameters found via Bayes Search
     svclassifier = SVC(kernel='rbf', C=53.98, gamma=40.18)
     svclassifier.fit(X_train, y_train)
 
@@ -65,8 +76,10 @@ def main():
     # Evaluate
     # print(confusion_matrix(y_test,y_pred))
     print(classification_report(y_test,y_pred))
-    print("Best parameters set found:")
-    print(svclassifier.best_params_)
+    
+    # Output best parameters after Grid/Random Search
+    # print("Best parameters set found:")
+    # print(svclassifier.best_params_)
 
 if __name__ == '__main__':
     main()

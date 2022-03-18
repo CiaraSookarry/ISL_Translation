@@ -1,6 +1,7 @@
-# img_process.py
-# File to perform image processing necessary for real-time
-# classification of ISL static fingerspelling letters
+# real_time.py
+# File to perform classification on user-generated images
+# ISL static fingerspelling letters. Proposed basis for recognition
+# of users signing in real-time.
 # 
 # Author: Ciara Sookarry
 # Date: 20/01/22
@@ -11,6 +12,9 @@ import mediapipe as mp
 import os
 import pandas as pd
 import pickle
+import re
+
+from sklearn.metrics import classification_report
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -18,6 +22,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 thresh_val = 160
 landmarks = list()
+label_list = list()
 
 # Write landmark values to CSV file
 def write_csv(data):
@@ -25,21 +30,18 @@ def write_csv(data):
 
     with open('real_time_test_landmarks.csv', 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(header)
-        # print(f'Data: {data}\n')
-        writer.writerows(data) # multiple letters in one file
-        # writer.writerow(data)
+        writer.writerow(header) # Write in header titles
+        writer.writerows(data)  # Write in landmark values for multiple images
 
 user_imgs = os.listdir("/home/ciara/Documents/FYP/ISL_Translation/My_ISL")
 
 for img in user_imgs:
 
-    # image = cv2.imread('/home/ciara/Documents/FYP/ISL_Translation/My_ISL/A_Wall_3.jpg')
     image = cv2.imread(f"/home/ciara/Documents/FYP/ISL_Translation/My_ISL/{img}")
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # ret, thresh4 = cv2.threshold(grey, thresh_val, 255, cv2.THRESH_TOZERO_INV)
     # annotated = cv2.cvtColor(thresh4, cv2.COLOR_GRAY2RGB)
-    annotated = cv2.cvtColor(grey, cv2.COLOR_GRAY2RGB)
+    annotated = cv2.cvtColor(grey, cv2.COLOR_GRAY2RGB) # Convert image back to RGB because MediaPipe requires RGB image
 
     # cv2.imshow('Original Image', image)
     # cv2.imshow('Greyscale Image', grey)
@@ -61,8 +63,6 @@ for img in user_imgs:
             cv2.destroyAllWindows()
             continue
 
-
-        #annotated_image = cv2.flip(image.copy(), 1)    
         
         print(f"Applying landmarks to {img}")
         for hand_landmarks in results.multi_hand_landmarks:
@@ -77,10 +77,18 @@ for img in user_imgs:
                     mp_hands.HAND_CONNECTIONS,
                     mp_drawing_styles.get_default_hand_landmarks_style(),
                     mp_drawing_styles.get_default_hand_connections_style())
+            
             # cv2.imshow('Landmarked Image', annotated)
             # cv2.waitKey(0)
             # cv2.destroyAllWindows()
-            sign_lmarks.append(427)
+            
+            # Extract image label from image name
+            label = re.search('(.+?)_(.+?)_[0-9]', img)
+            if label:
+                label_letter = label.group(1)
+                print(label_letter)
+                sign_lmarks.append(label_letter)
+            
             landmarks.append(sign_lmarks)
 
 write_csv(landmarks)
@@ -93,6 +101,6 @@ X_test = test.drop('label', axis=1)
 y_test = test['label']
 
 y_pred = svclassifier.predict(X_test)
-print(y_pred)
+# print(y_pred)
 
-
+print(classification_report(y_test, y_pred, zero_division=0))

@@ -1,3 +1,7 @@
+# eyedropper.py
+#
+# Script to select a luminance value for use as a threshold
+
 import cv2
 import math
 import numpy as np
@@ -9,7 +13,6 @@ color_selected = np.zeros((150,150,3), np.uint8)
 #save selected color RGB in file
 def thresh(R,G,B):
         thresh_val = math.ceil((0.2126*R + 0.7152*G + 0.0722*B))
-        print(thresh_val)
         ret, thresh_img = cv2.threshold(img, thresh_val, 255, cv2.THRESH_TOZERO_INV)
         cv2.imshow('Thresholded Image', thresh_img)
         cv2.waitKey(1)
@@ -31,7 +34,6 @@ def show_color(event,x,y,flags,param):
                 B=color_selected[10,10][0]
                 G=color_selected[10,10][1]
                 R=color_selected[10,10][2]
-                print(R,G,B)
                 thresh(R,G,B)
         
 

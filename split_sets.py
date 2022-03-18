@@ -38,23 +38,10 @@ for img in img_list:
         if fnmatch.fnmatch(img, f"{path}/*"):
             y_list.append(f"{letter}") 
 
-print(colored("X and y list shapes", 'cyan'))
-print(f"X_list shape: {len(X_list)}, y_list shape: {len(y_list)}\n")
-# print(colored("Sample of X list", "cyan"))
-# print(X_list[1::4000])
-# print(colored(f"\nSample of y list", "cyan"))
-# print(y_list[1::4000])
-
 ######################################
 # Split lists into training/testing
 ######################################
 X_train,X_test, y_train, y_test = train_test_split(X_list, y_list, train_size=0.8, random_state=42)
-
-print(colored("Training and testing set shapes", 'cyan'))
-print(f"X_train: {len(X_train)}")
-print(f"X_test: {len(X_test)}")
-print(f"y_train: {len(y_train)}")
-print(f"y_test: {len(y_test)}\n")
 
 ##################
 # Shuffle lists
@@ -73,5 +60,3 @@ random.shuffle(y_test, getShuffleVar)
 print(coloured("Samples of shuffled X and y test sets", 'cyan'))
 print(f"{y_test[:10]}\n")
 print(f"{X_test[:10]}\n")
-
-# print(y_test)
