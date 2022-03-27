@@ -63,7 +63,7 @@ def main():
     # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="recall_weighted", cv=5)
 
     # SVM with optimal parameters found via Bayes Search
-    svclassifier = SVC(kernel='rbf', C=53.98, gamma=40.18)
+    svclassifier = SVC(kernel='rbf', C=100, gamma=1)
 
     # Hyperparameters whcih give reasonable performance on user data
     # svclassifier = SVC(kernel='rbf', C=85.7, gamma=11.7)

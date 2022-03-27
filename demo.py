@@ -42,8 +42,8 @@ for img in user_imgs:
 
         if not results.multi_hand_landmarks:
             print(f"Landmarks could not be applied to {img}")
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
             continue
 
 
@@ -58,9 +58,9 @@ for img in user_imgs:
                     mp_hands.HAND_CONNECTIONS,
                     mp_drawing_styles.get_default_hand_landmarks_style(),
                     mp_drawing_styles.get_default_hand_connections_style())
-        if (counter%14) == 0:
+        if (counter%13) == 0:
             #resized = cv2.resize(annotated, (800,600))
-            cv2.imshow('Landmarked Image', resized)
+            cv2.imshow(f'Landmarked Image', resized)
             cv2.waitKey(0)
 
 
