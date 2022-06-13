@@ -15,7 +15,7 @@ import pandas as pd
 import pickle
 
 from scipy.stats import uniform
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.svm import SVC
 from skopt import BayesSearchCV
@@ -63,12 +63,19 @@ def main():
     # svclassifier = GridSearchCV(SVC(), tuned_parameters, verbose=3, scoring="recall_weighted", cv=5)
 
     # SVM with optimal parameters found via Bayes Search
-    svclassifier = SVC(kernel='rbf', C=53.98, gamma=40.18)
+    svclassifier = SVC(kernel='rbf', C=100, gamma=1)
+
+    # Hyperparameters whcih give reasonable performance on user data
+    # svclassifier = SVC(kernel='rbf', C=85.7, gamma=11.7)
+ 
+    # Linear SVM (94% accuracy)
+    # svclassifier = SVC(kernel='linear', C=2)
+    
     svclassifier.fit(X_train, y_train)
 
     # Save model for later use with Pickle
-    filename = 'svm_model.sav'
-    pickle.dump(svclassifier, open(filename, 'wb'))
+    # filename = 'real_time_svm_model.sav'
+    # pickle.dump(svclassifier, open(filename, 'wb'))
 
     # Predict
     y_pred = svclassifier.predict(X_test)
@@ -77,6 +84,8 @@ def main():
     # print(confusion_matrix(y_test,y_pred))
     print(classification_report(y_test,y_pred))
     
+    ConfusionMatrixDisplay.from_predictions(y_test,y_pred, cmap='BuGn')
+    plt.show()
     # Output best parameters after Grid/Random Search
     # print("Best parameters set found:")
     # print(svclassifier.best_params_)
