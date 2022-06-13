@@ -58,10 +58,21 @@ The sets are then shuffled to disperse the different letters all throughout the 
 ### Classification Model
 A Support Vector Machine (SVM) was used to classify the signs using the landmarks and labels in the CSV files. Other machine learning models were not considered because the SVM was able to provide >90% precision and recall overall (even with a linear kernel!) which was deemed adequate. 
 
-### Optimizing Hyperparameters
+## Optimizing Hyperparameters
 Using the correct hyperparameters is vital to ensure that the full poterntial of a machine learning model is reached. These hyperparamters can be altered manually and assessed but this is not efficient. Better ways to optimise hyperparmeters can be seen below.
 
-#### Exhaustive Grid Search
+### Random Search
+Hyperparameters are randomly chosen from specified distributions using `RandomizedSearchCV` from scikitlearn. This is done `n_iter` times. The distributions used in this project can be seen below:
+```
+param_distributions = dict(
+        kernel    = ['linear', 'rbf', 'sigmoid'],
+        C         = uniform(loc=1, scale=99),
+        gamma     = uniform(loc=1e-3, scale=1e3),
+        coef0     = uniform(loc=-10, scale=20)
+    )
+```
+
+### Exhaustive Grid Search
 With this method candidate hyperparameters are specified in a grid and `GridSearchCV` from scikitlearn can be used to try each possible combination of hyperparameters using cross validation and return the best hyperparameters. The code below shows the parameters that were used in this project.
 ```
 35     tuned_parameters = [
@@ -70,4 +81,25 @@ With this method candidate hyperparameters are specified in a grid and `GridSear
 38     {"kernel": ["sigmoid"], "gamma": ["auto", "scale", 1e-3], "C": [10, 100, 1000]},
 39     ]
 ```
-#### Bayesian Hyperparamter Optimization
+### Bayesian Hyperparamter Optimization
+Bayesian optimization methods are much more sophisticated than either grid or random search because they are **informed** unlike the others. This means that Bayesian methods hold onto a history of past evaluation scores and the hyperparameters that correspond to each score. The history is then used to create a probabilistic surrogate model of the cost function, p(y|x),  that is cheaper to evaluate than the objective cost function. Hyperparameters are tried out on the surrogate and only the best performing hyperparameters are evaluated on the objective function. Once the hyperparameters have been evaluated on the objective function, the results are added to the history and used to update the surrogate model, making it more accurate. 
+
+This project used the `tpe` surrogate model from `hyperopt` as can be seen in the file `bayes_svm.py`. These were the hyperparameter distributions used:
+```
+space4svm = {
+    'kernel': hp.choice('kernel', ['linear', 'sigmoid', 'rbf']),
+    'C': hp.uniform('C', 1, 100),
+    'gamma': hp.uniform('gamma', 1e-3, 1e3),
+    'coef0': hp.uniform('coef0', -10, 10)
+}
+```
+
+## Demo
+The file `demo.py` was used in the final presentation of this project. It applies landmarks to images not found in the dataset at https://github.com/marlondcu/ISL_50k  and attempts to classify the signs found within. The results are displayed in a confusion matrix and compared with the confusion matrix generated using images from the original dataset.
+
+## Future Work
+1. Real-Time Recognition
+This was attempted but not completed due to the time-constraints of the project. The ability to recognise a users signs in real-time would take the project to the next level.
+
+2. Recognition of dynamic signs
+The 3 signs of the fingerspelling alphabet that require movement were left out of this project. Their recognition would require the use of videos from https://github.com/marlondcu/ISL_50k.
